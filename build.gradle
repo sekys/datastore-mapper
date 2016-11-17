@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+    id 'maven-publish'
+}
+
+sourceCompatibility = 1.7
+group 'sk.seky.google.cloud'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main.compileClasspath += configurations.provided
+    test.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+}
+
+dependencies {
+    provided 'com.google.cloud:google-cloud:0.5.1'
+    provided(group: 'com.google.guava', name: 'guava', version: '19.0')
+    provided('com.fasterxml.jackson.core:jackson-databind:2.7.3')
+
+    // Unit testy
+    testCompile "org.mockito:mockito-all:1.10.19"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+shadowJar {
+    baseName = 'datastore-mapper'
+    classifier = ''
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+
+publishing {
+    publications {
+        shadow(MavenPublication) {
+            from components.shadow
+            artifactId = 'datastore-mapper'
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+}
+
